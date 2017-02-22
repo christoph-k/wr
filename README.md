@@ -1,2 +1,2 @@
 # wr
-Utility to run command as files change
+Utility to watch files and run commands on change
