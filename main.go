@@ -64,6 +64,8 @@ func run(pids *[]int, pidslock *sync.Mutex, command []string) {
 	fmt.Printf("running %v\n", command)
 	cmd := exec.Command(command[0], command[1:]...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	cmd.Start()
 
 	p := cmd.Process
