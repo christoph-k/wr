@@ -5,6 +5,7 @@ import (
 	"github.com/christoph-k/go-fsevents"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strings"
 	"sync"
 	"syscall"
@@ -33,6 +34,15 @@ func main() {
 		usage()
 		os.Exit(1)
 	}
+
+	// intercept SIGINT and kill childprocesses
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		kill(&pids, &pidslock)
+		os.Exit(0)
+	}()
 
 	w, err := fsevents.NewWatcher(".", 200)
 	if err != nil {
