@@ -45,7 +45,7 @@ func main() {
 		os.Exit(0)
 	}()
 
-	w, err := fsevents.NewWatcher(".", 200)
+	w, err := fsevents.NewWatcher(".", time.Millisecond*200)
 	if err != nil {
 		panic(err)
 	}
@@ -64,7 +64,7 @@ func main() {
 		fmt.Printf("%v has changed\n", e.Path)
 		kill(&pids, &pidslock)
 		w.Stop()
-		w, err = fsevents.NewWatcher(".", 200)
+		w, err = fsevents.NewWatcher(".", time.Millisecond*200)
 		if err != nil {
 			panic(err)
 		}
