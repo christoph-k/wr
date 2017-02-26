@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/christoph-k/go-fsevents"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -10,6 +9,8 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/christoph-k/go-fsevents"
 )
 
 func main() {
@@ -62,6 +63,7 @@ func main() {
 		}
 		fmt.Printf("%v has changed\n", e.Path)
 		kill(&pids, &pidslock)
+		w.Stop()
 		w, err = fsevents.NewWatcher(".", 200)
 		if err != nil {
 			panic(err)
