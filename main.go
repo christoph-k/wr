@@ -29,6 +29,9 @@ func main() {
 			for idx, e := range exclude {
 				exclude[idx] = strings.Trim(e, " ")
 			}
+			exclude = append(exclude, "/.git/")
+			exclude = append(exclude, "/.svn/")
+			exclude = append(exclude, "/.tmp/")
 		}
 	}
 	if len(command) == 0 {
