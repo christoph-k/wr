@@ -73,7 +73,7 @@ func main() {
 		fmt.Printf("%v has changed\n", e.Path)
 		kill(&pids, &pidslock)
 		logDebugf("stopping watcher\n")
-		w.Stop()
+		//w.Stop()
 		w, err = fsevents.NewWatcher(".", time.Millisecond*200)
 		if err != nil {
 			panic(err)
