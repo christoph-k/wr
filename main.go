@@ -13,6 +13,8 @@ import (
 	"github.com/christoph-k/go-fsevents"
 )
 
+var debug = false
+
 func main() {
 	var pids []int
 	var pidslock sync.Mutex
@@ -20,15 +22,18 @@ func main() {
 	var exclude []string
 
 	for i, arg := range os.Args {
-		if arg == "--" {
+		switch arg {
+		case "--":
 			command = os.Args[i+1:]
-		}
-		if arg == "-exclude" {
+			break
+		case "-exclude":
 			excludestr := os.Args[i+1]
 			exclude = strings.Split(excludestr, ",")
 			for idx, e := range exclude {
 				exclude[idx] = strings.Trim(e, " ")
 			}
+		case "-debug":
+			debug = true
 		}
 		exclude = append(exclude, "/.git/")
 		exclude = append(exclude, "/.svn/")
@@ -39,6 +44,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	logDebugf("running in debug mode\n")
 	// intercept SIGINT and kill childprocesses
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
@@ -66,6 +72,7 @@ func main() {
 		}
 		fmt.Printf("%v has changed\n", e.Path)
 		kill(&pids, &pidslock)
+		logDebugf("stopping watcher\n")
 		w.Stop()
 		w, err = fsevents.NewWatcher(".", time.Millisecond*200)
 		if err != nil {
@@ -93,12 +100,16 @@ func run(pids *[]int, pidslock *sync.Mutex, command []string) {
 }
 
 func kill(pids *[]int, pidslock *sync.Mutex) {
+	logDebugf("locking pidslock\n")
 	pidslock.Lock()
 	defer pidslock.Unlock()
+	logDebugf("locked pidslock\n")
 	for _, pid := range *pids {
 		fmt.Printf("killing %v\n", pid)
+		logDebugf("sending SIGTERM to %v\n", -pid)
 		syscall.Kill(-pid, syscall.SIGTERM)
 		time.Sleep(time.Millisecond * 100)
+		logDebugf("sending SIGKILL to %v\n", -pid)
 		syscall.Kill(-pid, syscall.SIGKILL)
 	}
 	*pids = make([]int, 0)
@@ -106,4 +117,10 @@ func kill(pids *[]int, pidslock *sync.Mutex) {
 
 func usage() {
 	fmt.Printf("usage: wr [-exclude \"file1, file2\"] -- <command with args>\n")
+}
+
+func logDebugf(str string, v ...interface{}) {
+	if debug {
+		fmt.Printf(str, v...)
+	}
 }
