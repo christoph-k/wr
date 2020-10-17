@@ -38,6 +38,7 @@ func main() {
 		exclude = append(exclude, "/.git/")
 		exclude = append(exclude, "/.svn/")
 		exclude = append(exclude, "/.tmp/")
+		exclude = append(exclude, "/.swp/")
 	}
 	if len(command) == 0 {
 		usage()
